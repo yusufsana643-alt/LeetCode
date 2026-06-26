@@ -7,9 +7,9 @@ class Solution {
             bit = new int[n + 2];
         }
 
-        void update(int idx, int val) {
+        void update(int idx) {
             while (idx < bit.length) {
-                bit[idx] += val;
+                bit[idx]++;
                 idx += idx & -idx;
             }
         }
@@ -25,35 +25,27 @@ class Solution {
     }
 
     public long countMajoritySubarrays(int[] nums, int target) {
+
         int n = nums.length;
+        int offset = n + 1;
 
-        int[] prefix = new int[n + 1];
-
-        for (int i = 0; i < n; i++) {
-            prefix[i + 1] = prefix[i] + (nums[i] == target ? 1 : -1);
-        }
-
-        int[] all = prefix.clone();
-        java.util.Arrays.sort(all);
-
-        java.util.HashMap<Integer, Integer> map = new java.util.HashMap<>();
-        int idx = 1;
-        for (int x : all) {
-            if (!map.containsKey(x)) {
-                map.put(x, idx++);
-            }
-        }
-
-        Fenwick bit = new Fenwick(idx);
+        Fenwick bit = new Fenwick(2 * n + 5);
 
         long ans = 0;
+        int prefix = 0;
 
-        for (int x : prefix) {
-            int pos = map.get(x);
+        bit.update(offset);
 
-            ans += bit.query(pos - 1);
+        for (int x : nums) {
 
-            bit.update(pos, 1);
+            if (x == target)
+                prefix++;
+            else
+                prefix--;
+
+            ans += bit.query(prefix + offset - 1);
+
+            bit.update(prefix + offset);
         }
 
         return ans;
